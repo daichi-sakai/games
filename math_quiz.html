@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>さんすうクイズ ⭐</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Hiragino Maru Gothic Pro', 'BIZ UDPGothic', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .container { background: white; border-radius: 24px; padding: 28px 24px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  .subtitle { color: #888; font-size: 15px; margin-bottom: 24px; }
+  .unit-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 16px; font-size: 18px; font-weight: bold; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+  .unit-btn:active { transform: scale(0.97); }
+  .btn-kakzan { background: #FFD93D; color: #333; }
+  .btn-warizan { background: #6BCB77; color: #fff; }
+  .btn-bunsuu { background: #FF6B6B; color: #fff; }
+  .btn-shosu { background: #4D96FF; color: #fff; }
+  .btn-menseki { background: #FF922B; color: #fff; }
+  .btn-random { background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: #fff; }
+  .progress-bar-wrap { background: #eee; border-radius: 99px; height: 10px; margin-bottom: 20px; }
+  .progress-bar { background: linear-gradient(90deg, #667eea, #764ba2); height: 10px; border-radius: 99px; transition: width 0.4s; }
+  .question-count { color: #999; font-size: 14px; margin-bottom: 8px; }
+  .unit-label { display: inline-block; background: #f0f0f0; border-radius: 99px; padding: 4px 14px; font-size: 13px; color: #666; margin-bottom: 18px; }
+  .question-box { background: #f8f9ff; border-radius: 16px; padding: 24px 16px; margin-bottom: 20px; font-size: 26px; font-weight: bold; color: #333; line-height: 1.5; }
+  .fraction-display { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 4px; font-size: 22px; }
+  .fraction-display .frac-line { width: 100%; border-top: 2px solid #333; margin: 2px 0; }
+  .input-area { margin-bottom: 20px; }
+  .answer-input { width: 100%; padding: 14px; font-size: 22px; border: 3px solid #ddd; border-radius: 14px; text-align: center; outline: none; transition: border-color 0.2s; }
+  .answer-input:focus { border-color: #667eea; }
+  .fraction-inputs { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .fraction-inputs .frac-wrap { display: flex; flex-direction: column; align-items: center; }
+  .fraction-inputs input { width: 80px; padding: 12px 8px; font-size: 22px; border: 3px solid #ddd; border-radius: 12px; text-align: center; outline: none; margin: 4px 0; }
+  .fraction-inputs input:focus { border-color: #FF6B6B; }
+  .fraction-inputs .frac-line2 { width: 80px; border-top: 3px solid #333; }
+  .fraction-inputs .frac-slash { font-size: 24px; color: #333; }
+  .remainder-inputs { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .remainder-inputs .inp-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .remainder-inputs label { font-size: 14px; color: #666; }
+  .remainder-inputs input { width: 90px; padding: 12px 8px; font-size: 22px; border: 3px solid #ddd; border-radius: 12px; text-align: center; outline: none; }
+  .remainder-inputs input:focus { border-color: #6BCB77; }
+  .submit-btn { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 16px; cursor: pointer; transition: transform 0.1s, opacity 0.1s; }
+  .submit-btn:active { transform: scale(0.97); }
+  .feedback { font-size: 24px; font-weight: bold; padding: 16px; border-radius: 14px; margin-bottom: 16px; display: none; }
+  .feedback.correct { background: #d4edda; color: #155724; display: block; }
+  .feedback.wrong { background: #f8d7da; color: #721c24; display: block; }
+  .score-emoji { font-size: 64px; margin-bottom: 16px; }
+  .score-num { font-size: 48px; font-weight: bold; color: #667eea; margin-bottom: 8px; }
+  .score-msg { font-size: 18px; color: #555; margin-bottom: 24px; }
+  .stars { font-size: 36px; margin-bottom: 24px; }
+  .retry-btn { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; background: linear-gradient(135deg, #FFD93D, #FF6B6B); color: white; border: none; border-radius: 16px; cursor: pointer; margin-bottom: 12px; }
+  .home-btn { width: 100%; padding: 16px; font-size: 18px; background: #f0f0f0; color: #555; border: none; border-radius: 16px; cursor: pointer; }
+  @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-8px); } 80% { transform: translateX(8px); } }
+  .pop { animation: popIn 0.35s ease; }
+  .shake { animation: shake 0.4s ease; }
+  .confetti-piece { position: fixed; width: 10px; height: 10px; border-radius: 2px; animation: confettiFall linear forwards; pointer-events: none; z-index: 999; }
+  @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <div id="screen-top">
+    <h1>📚 さんすうクイズ</h1>
+    <div class="subtitle">小学4年生 ⭐ 10もんチャレンジ！</div>
+    <button class="unit-btn btn-kakzan" onclick="startGame('kakzan')">✖️ かけ算（2けた×2けた）</button>
+    <button class="unit-btn btn-warizan" onclick="startGame('warizan')">➗ わり算（あまりあり）</button>
+    <button class="unit-btn btn-bunsuu" onclick="startGame('bunsuu')">🍰 分数（たし算・ひき算）</button>
+    <button class="unit-btn btn-shosu" onclick="startGame('shosu')">🔢 小数（たし算・ひき算）</button>
+    <button class="unit-btn btn-menseki" onclick="startGame('menseki')">📐 面積（長方形・正方形）</button>
+    <button class="unit-btn btn-random" onclick="startGame('random')">🎲 おまかせランダム！</button>
+  </div>
+  <div id="screen-quiz" class="hidden">
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="question-count" id="question-count"></div>
+    <div class="unit-label" id="unit-label"></div>
+    <div class="question-box" id="question-box"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="input-area" id="input-area"></div>
+    <button class="submit-btn" id="submit-btn" onclick="checkAnswer()">✅ こたえる</button>
+  </div>
+  <div id="screen-score" class="hidden">
+    <div class="score-emoji" id="score-emoji"></div>
+    <div class="score-num" id="score-num"></div>
+    <div class="stars" id="stars"></div>
+    <div class="score-msg" id="score-msg"></div>
+    <button class="retry-btn" onclick="retryGame()">🔄 もう一かい！</button>
+    <button class="home-btn" onclick="goHome()">🏠 もどる</button>
+  </div>
+</div>
+<script>
+const UNITS=['kakzan','warizan','bunsuu','shosu','menseki'];
+const UNIT_LABELS={kakzan:'✖️ かけ算',warizan:'➗ わり算',bunsuu:'🍰 分数',shosu:'🔢 小数',menseki:'📐 面積'};
+let currentUnit='',questions=[],currentQ=0,score=0,answered=false,selectedUnit='';
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function gcd(a,b){return b===0?a:gcd(b,a%b);}
+function generateQuestion(unit){
+  if(unit==='kakzan'){const a=rnd(11,49),b=rnd(11,49);return{text:a+' × '+b+' = ?',type:'normal',answer:a*b,unit:'kakzan'};}
+  if(unit==='warizan'){const b=rnd(3,9),q=rnd(5,15),r=rnd(1,b-1),a=b*q+r;return{text:a+' ÷ '+b+' = ?',type:'remainder',answer:q,remainder:r,unit:'warizan'};}
+  if(unit==='bunsuu'){const den=rnd(3,9),op=rnd(0,1);if(op===0){const n1=rnd(1,den-1),n2=rnd(1,den-1),sum=n1+n2;let nd=den,nn=sum;if(nn>=nd){nn=sum-den;nd=den;}else{const g=gcd(nn,nd);nn/=g;nd/=g;}return{text:'<span class="fraction-display"><span>'+n1+'</span><span class="frac-line"></span><span>'+den+'</span></span> ＋ <span class="fraction-display"><span>'+n2+'</span><span class="frac-line"></span><span>'+den+'</span></span> = ?',type:'fraction',answerNum:nn,answerDen:nd,origNum:sum,origDen:den,unit:'bunsuu'};}else{let n1=rnd(2,den-1),n2=rnd(1,n1-1),diff=n1-n2;const g=gcd(diff,den),nn=diff/g,nd=den/g;return{text:'<span class="fraction-display"><span>'+n1+'</span><span class="frac-line"></span><span>'+den+'</span></span> ー <span class="fraction-display"><span>'+n2+'</span><span class="frac-line"></span><span>'+den+'</span></span> = ?',type:'fraction',answerNum:nn,answerDen:nd,origNum:diff,origDen:den,unit:'bunsuu'};}}
+  if(unit==='shosu'){const op=rnd(0,1),a=rnd(1,99)/10,b=rnd(1,99)/10;if(op===0){const ans=Math.round((a+b)*10)/10;return{text:a.toFixed(1)+' ＋ '+b.toFixed(1)+' = ?',type:'decimal',answer:ans,unit:'shosu'};}else{const big=Math.max(a,b),small=Math.min(a,b),ans=Math.round((big-small)*10)/10;return{text:big.toFixed(1)+' ー '+small.toFixed(1)+' = ?',type:'decimal',answer:ans,unit:'shosu'};}}
+  if(unit==='menseki'){const type=rnd(0,1);if(type===0){const w=rnd(3,20),h=rnd(3,20);return{text:'たて '+h+'cm、よこ '+w+'cm の<br>長方形の面積は？（cm²）',type:'normal',answer:w*h,unit:'menseki'};}else{const s=rnd(3,20);return{text:'1辺が '+s+'cm の<br>正方形の面積は？（cm²）',type:'normal',answer:s*s,unit:'menseki'};}}
+}
+function startGame(unit){selectedUnit=unit;currentUnit=unit;questions=[];for(let i=0;i<10;i++){const u=unit==='random'?UNITS[rnd(0,UNITS.length-1)]:unit;questions.push(generateQuestion(u));}currentQ=0;score=0;show('screen-quiz');showQuestion();}
+function showQuestion(){answered=false;const q=questions[currentQ];document.getElementById('progress-bar').style.width=(currentQ/10*100)+'%';document.getElementById('question-count').textContent='もん '+(currentQ+1)+' / 10';document.getElementById('unit-label').textContent=UNIT_LABELS[q.unit];document.getElementById('question-box').innerHTML=q.text;document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';document.getElementById('submit-btn').disabled=false;document.getElementById('submit-btn').textContent='✅ こたえる';const inputArea=document.getElementById('input-area');if(q.type==='fraction'){inputArea.innerHTML='<div class="fraction-inputs"><div class="frac-wrap"><input type="number" id="ans-num" placeholder="分子" inputmode="numeric" min="0"><div class="frac-line2"></div><input type="number" id="ans-den" placeholder="分母" inputmode="numeric" min="1"></div></div>';document.getElementById('ans-num').focus();}else if(q.type==='remainder'){inputArea.innerHTML='<div class="remainder-inputs"><div class="inp-wrap"><label>こたえ</label><input type="number" id="ans-q" inputmode="numeric" min="0"></div><div style="font-size:24px;padding-top:20px;">あまり</div><div class="inp-wrap"><label>あまり</label><input type="number" id="ans-r" inputmode="numeric" min="0"></div></div>';document.getElementById('ans-q').focus();}else{inputArea.innerHTML='<input type="number" class="answer-input" id="ans-main" inputmode="decimal" placeholder="こたえを入れよう">';document.getElementById('ans-main').focus();document.getElementById('ans-main').addEventListener('keydown',e=>{if(e.key==='Enter')checkAnswer();});}document.getElementById('question-box').classList.remove('pop');void document.getElementById('question-box').offsetWidth;document.getElementById('question-box').classList.add('pop');}
+function checkAnswer(){if(answered){nextQuestion();return;}const q=questions[currentQ];let correct=false;if(q.type==='fraction'){const num=parseInt(document.getElementById('ans-num').value),den=parseInt(document.getElementById('ans-den').value);if(isNaN(num)||isNaN(den)||den===0)return;const g=gcd(Math.abs(num),Math.abs(den));correct=(num/g===q.answerNum&&den/g===q.answerDen);}else if(q.type==='remainder'){const aq=parseInt(document.getElementById('ans-q').value),ar=parseInt(document.getElementById('ans-r').value);if(isNaN(aq)||isNaN(ar))return;correct=(aq===q.answer&&ar===q.remainder);}else if(q.type==='decimal'){const val=parseFloat(document.getElementById('ans-main').value);if(isNaN(val))return;correct=Math.abs(val-q.answer)<0.001;}else{const val=parseFloat(document.getElementById('ans-main').value);if(isNaN(val))return;correct=(val===q.answer);}answered=true;const fb=document.getElementById('feedback');if(correct){score++;fb.textContent='⭕ せいかい！すごい！ 🎉';fb.className='feedback correct pop';launchConfetti();}else{let ansText='';if(q.type==='fraction')ansText=q.answerNum+'/'+q.answerDen;else if(q.type==='remainder')ansText=q.answer+' あまり '+q.remainder;else if(q.type==='decimal')ansText=q.answer.toFixed(1);else ansText=q.answer;fb.textContent='❌ ざんねん… こたえは '+ansText+' だよ！';fb.className='feedback wrong';document.getElementById('question-box').classList.remove('shake');void document.getElementById('question-box').offsetWidth;document.getElementById('question-box').classList.add('shake');}document.getElementById('submit-btn').textContent=currentQ<9?'▶ つぎへ':'🏁 けっかをみる';}
+function nextQuestion(){currentQ++;if(currentQ>=10){showScore();return;}showQuestion();}
+function showScore(){show('screen-score');document.getElementById('progress-bar').style.width='100%';document.getElementById('score-num').textContent=score+' / 10';const stars=score>=10?'⭐⭐⭐':score>=7?'⭐⭐':score>=4?'⭐':'';document.getElementById('stars').textContent=stars;let emoji,msg;if(score===10){emoji='🏆';msg='かんぺき！すばらしい！！';launchConfetti(60);}else if(score>=8){emoji='😄';msg='とってもよくできました！';}else if(score>=5){emoji='😊';msg='よくできました！';}else{emoji='😤';msg='もう一かいがんばろう！';}document.getElementById('score-emoji').textContent=emoji;document.getElementById('score-msg').textContent=msg;}
+function retryGame(){startGame(selectedUnit);}
+function goHome(){show('screen-top');}
+function show(id){['screen-top','screen-quiz','screen-score'].forEach(s=>{document.getElementById(s).classList.toggle('hidden',s!==id);});}
+function launchConfetti(count=30){const colors=['#FFD93D','#6BCB77','#FF6B6B','#4D96FF','#FF922B','#cc5de8'];for(let i=0;i<count;i++){setTimeout(()=>{const el=document.createElement('div');el.className='confetti-piece';el.style.left=Math.random()*100+'vw';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.animationDuration=(1.5+Math.random()*2)+'s';el.style.animationDelay=Math.random()*0.5+'s';el.style.width=(8+Math.random()*8)+'px';el.style.height=(8+Math.random()*8)+'px';document.body.appendChild(el);setTimeout(()=>el.remove(),4000);},i*30);}}
+</script>
+</body>
+</html>
